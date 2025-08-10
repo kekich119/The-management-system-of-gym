@@ -1,0 +1,14 @@
+
+version: "0.1"
+
+services:
+  postgres:
+    image: postgres:17.5
+    ports:
+      - "5430:5432"
+
+    environment:
+      - POSTGRES_DB=gym_db
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_USER=kekich
+    restart: always
