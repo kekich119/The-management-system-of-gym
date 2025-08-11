@@ -22,7 +22,11 @@ public class UserRestController {
     @PostMapping("/add/user")
     public User addUser(@RequestBody User user) {
         return userService.addUser(user);
+    }
 
+    @GetMapping("/get/users")
+    public List<User> getUsers() {
+        return userService.getAllUsers();
     }
 
 }
