@@ -3,6 +3,8 @@ package com.kekich.gymsystem.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 
 import java.sql.Date;
@@ -26,11 +28,11 @@ public class User {
     @JsonProperty("date_birth")
     private LocalDate birthday;
     @Column(name = "special_code")
+    @Min(100000)
+    @Max(999999)
     private int special_code;
     @Column(name = "email")
     private String email;
-    @Column(name = "password")
-    private String password;
     @Column(name = "date_subscription_start")
     private LocalDate date_subscription_start;
     @Column(name = "date_subscription_finish")

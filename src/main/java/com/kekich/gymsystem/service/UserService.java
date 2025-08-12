@@ -44,9 +44,13 @@ public class UserService {
 
 
     @Transactional
-    public void updateUserByEmail(String email,String newName) {
+    public void updateUserByEmail(String email, String newName) {
         User user = usersRepository.findByEmail(email.trim().toLowerCase());
         user.setName(newName);
+    }
+
+    public User getUserByEmail(String email) {
+        return usersRepository.findByEmail(email.trim().toLowerCase());
     }
 
     @Scheduled(cron = "@daily")
@@ -59,4 +63,5 @@ public class UserService {
             }
         }
     }
+
 }
