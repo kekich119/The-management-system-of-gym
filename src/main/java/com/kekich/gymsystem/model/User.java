@@ -21,7 +21,7 @@ public class User {
     @Column(name = "name")
     private String name;
     @Column(name = "last_name")
-    private String last_name;
+    private String lastName;
     @Column(name = "date_birth")
     @JsonProperty("date_birth")
     private LocalDate birthday;

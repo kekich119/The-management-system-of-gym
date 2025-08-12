@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>GymSystem Users</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input, button { margin: 5px; }
+    .section { margin-bottom: 25px; padding: 10px; border: 1px solid #ccc; }
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    label { display: inline-block; margin: 5px 0; }
+  </style>
+</head>
+<body>
+
+<h1>Пользователи GymSystem</h1>
+
+<div class="section" id="all-users-section">
+  <h2>Все пользователи</h2>
+  <button onclick="loadUsers()">Обновить список</button>
+  <table id="users-table">
+    <thead>
+    <tr>
+      <th>ID</th><th>Имя</th><th>Фамилия</th><th>Email</th><th>Дата рождения</th>
+      <th>Special Code</th><th>Дата начала подписки</th><th>Дата окончания подписки</th>
+      <th>Pay For</th><th>Активен</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<div class="section">
+  <h2>Добавить пользователя</h2>
+  <input id="add-name" placeholder="Имя" />
+  <input id="add-lastName" placeholder="Фамилия" />
+  <input id="add-birthday" type="date" placeholder="Дата рождения" />
+  <input id="add-special-code" type="number" placeholder="Special Code" />
+  <input id="add-email" placeholder="Email" />
+  <input id="add-password" placeholder="Пароль" />
+  <input id="add-date-sub-start" type="date" placeholder="Дата начала подписки" />
+  <input id="add-date-sub-finish" type="date" placeholder="Дата окончания подписки" />
+  <input id="add-pay-for" type="number" placeholder="Pay For" />
+  <label>
+    Активен?
+    <input id="add-active" type="checkbox" />
+  </label>
+  <button onclick="addUser()">Добавить</button>
+  <div id="add-result"></div>
+</div>
+
+<div class="section">
+  <h2>Обновить имя пользователя по Email</h2>
+  <input id="update-email" placeholder="Email" />
+  <input id="update-name" placeholder="Новое имя" />
+  <button onclick="updateUser()">Обновить</button>
+  <div id="update-result"></div>
+</div>
+
+<div class="section">
+  <h2>Удалить пользователя по Email</h2>
+  <input id="delete-email" placeholder="Email" />
+  <button onclick="deleteUser()">Удалить</button>
+  <div id="delete-result"></div>
+</div>
+
+<div class="section">
+  <h2>Найти пользователя по имени</h2>
+  <input id="find-name" placeholder="Имя" />
+  <button onclick="findUserByName()">Найти</button>
+  <pre id="find-name-result"></pre>
+</div>
+
+<div class="section">
+  <h2>Найти пользователя по фамилии</h2>
+  <input id="find-lastName" placeholder="Фамилия" />
+  <button onclick="findUserByLastName()">Найти</button>
+  <pre id="find-lastName-result"></pre>
+</div>
+
+<script>
+  const API_BASE = 'http://localhost:8080/api';
+
+  async function loadUsers() {
+    const res = await fetch(`${API_BASE}/get/users`);
+    const users = await res.json();
+    const tbody = document.querySelector('#users-table tbody');
+    tbody.innerHTML = '';
+    users.forEach(u => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+      <td>${u.id}</td>
+      <td>${u.name}</td>
+      <td>${u.lastName}</td>
+      <td>${u.email}</td>
+      <td>${u.date_birth || u.birthday || ''}</td>
+      <td>${u.special_code || ''}</td>
+      <td>${u.date_subscription_start || ''}</td>
+      <td>${u.date_subscription_finish || ''}</td>
+      <td>${u.pay_for || ''}</td>
+      <td>${u.active ? 'Да' : 'Нет'}</td>
+    `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function addUser() {
+    const name = document.getElementById('add-name').value.trim();
+    const lastName = document.getElementById('add-lastName').value.trim();
+    const birthday = document.getElementById('add-birthday').value;
+    const special_code = parseInt(document.getElementById('add-special-code').value, 10) || 0;
+    const email = document.getElementById('add-email').value.trim();
+    const password = document.getElementById('add-password').value.trim();
+    const date_subscription_start = document.getElementById('add-date-sub-start').value;
+    const date_subscription_finish = document.getElementById('add-date-sub-finish').value;
+    const pay_for = parseInt(document.getElementById('add-pay-for').value, 10) || 0;
+    const active = document.getElementById('add-active').checked;
+
+    if (!name || !email) {
+      alert('Имя и email обязательны');
+      return;
+    }
+
+    const user = {
+      name,
+      lastName,
+      date_birth: birthday || null,
+      special_code,
+      email,
+      password,
+      date_subscription_start: date_subscription_start || null,
+      date_subscription_finish: date_subscription_finish || null,
+      pay_for,
+      active
+    };
+
+    const res = await fetch(`${API_BASE}/add/user`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(user)
+    });
+
+    if (res.ok) {
+      document.getElementById('add-result').textContent = 'Пользователь добавлен!';
+      loadUsers();
+    } else {
+      document.getElementById('add-result').textContent = 'Ошибка при добавлении';
+    }
+  }
+
+  async function updateUser() {
+    const email = document.getElementById('update-email').value.trim();
+    const newName = document.getElementById('update-name').value.trim();
+    if (!email || !newName) {
+      alert('Email и новое имя обязательны');
+      return;
+    }
+    const url = new URL(`${API_BASE}/update/user/`);
+    url.searchParams.append('email', email);
+    url.searchParams.append('new-name', newName);
+
+    const res = await fetch(url, { method: 'PUT' });
+    if (res.ok) {
+      document.getElementById('update-result').textContent = 'Имя обновлено';
+      loadUsers();
+    } else {
+      document.getElementById('update-result').textContent = 'Ошибка при обновлении';
+    }
+  }
+
+  async function deleteUser() {
+    const email = document.getElementById('delete-email').value.trim();
+    if (!email) {
+      alert('Email обязателен');
+      return;
+    }
+    const url = new URL(`${API_BASE}/delete/user/by-email/`);
+    url.searchParams.append('email', email);
+
+    const res = await fetch(url, { method: 'DELETE' });
+    if (res.ok) {
+      document.getElementById('delete-result').textContent = 'Пользователь удалён';
+      loadUsers();
+    } else {
+      document.getElementById('delete-result').textContent = 'Ошибка при удалении';
+    }
+  }
+
+  async function findUserByName() {
+    const name = document.getElementById('find-name').value.trim();
+    if (!name) {
+      alert('Введите имя');
+      return;
+    }
+    const url = new URL(`${API_BASE}/get/user/by-name`);
+    url.searchParams.append('name', name);
+
+    const res = await fetch(url);
+    if (res.ok) {
+      const user = await res.json();
+      document.getElementById('find-name-result').textContent = JSON.stringify(user, null, 2);
+    } else {
+      document.getElementById('find-name-result').textContent = 'Пользователь не найден';
+    }
+  }
+
+  async function findUserByLastName() {
+    const lastName = document.getElementById('find-lastName').value.trim();
+    if (!lastName) {
+      alert('Введите фамилию');
+      return;
+    }
+    const url = new URL(`${API_BASE}/get/user/by-lastName`);
+    url.searchParams.append('lastName', lastName);
+
+    const res = await fetch(url);
+    if (res.ok) {
+      const user = await res.json();
+      document.getElementById('find-lastName-result').textContent = JSON.stringify(user, null, 2);
+    } else {
+      document.getElementById('find-lastName-result').textContent = 'Пользователь не найден';
+    }
+  }
+
+  // Загрузка пользователей при открытии страницы
+  loadUsers();
+</script>
+
+</body>
+</html>
