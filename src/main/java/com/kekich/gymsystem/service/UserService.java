@@ -2,6 +2,7 @@ package com.kekich.gymsystem.service;
 
 import com.kekich.gymsystem.model.User;
 import com.kekich.gymsystem.repository.UsersRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,4 +49,14 @@ public class UserService {
         user.setName(newName);
     }
 
+    @Scheduled(cron = "@daily")
+    public void checkSubscription() {
+        List<User> users = usersRepository.findAll();
+        for (User user : users) {
+            if (user.isActive() && user.getDate_subscription_finish().isBefore(java.time.LocalDate.now())) {
+                user.setActive(false);
+                usersRepository.save(user);
+            }
+        }
+    }
 }

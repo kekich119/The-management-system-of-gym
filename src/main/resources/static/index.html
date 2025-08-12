@@ -2,15 +2,9 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
+  <link rel="stylesheet" href="styles.css"/>
   <title>GymSystem Users</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    input, button { margin: 5px; }
-    .section { margin-bottom: 25px; padding: 10px; border: 1px solid #ccc; }
-    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-    label { display: inline-block; margin: 5px 0; }
-  </style>
+
 </head>
 <body>
 
@@ -82,6 +76,17 @@
 <script>
   const API_BASE = 'http://localhost:8080/api';
 
+  document.getElementById('add-date-sub-start').addEventListener('change', function() {
+    const startDate = this.value;
+    if (startDate) {
+      const date = new Date(startDate);
+      date.setMonth(date.getMonth() + 1);
+      // Формат YYYY-MM-DD
+      const finishDate = date.toISOString().slice(0, 10);
+      document.getElementById('add-date-sub-finish').value = finishDate;
+    }
+  });
+
   async function loadUsers() {
     const res = await fetch(`${API_BASE}/get/users`);
     const users = await res.json();
@@ -120,7 +125,10 @@
     if (!name || !email) {
       alert('Имя и email обязательны');
       return;
+
     }
+
+
 
     const user = {
       name,
@@ -140,6 +148,9 @@
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(user)
     });
+
+
+
 
     if (res.ok) {
       document.getElementById('add-result').textContent = 'Пользователь добавлен!';
