@@ -22,8 +22,11 @@ A user management system for a gym, built with Spring Boot.
 1. Clone the repository:
    git clone https://github.com/kekich119/The-management-system-of-gym.git
 2. Go to the project directory:
-3. Build and run the application:
-4. Open the web interface: http://localhost:8080
+3. Run docker-compose: `cd docker-gym` `docker-compose up`
+4. Connect db: you can edit docker-compose.yml and application.properties for your data base
+5. Create db: you need open directory `resource/db` and run sql script
+6. Build and run the application: just run the app
+7. Open the web interface: http://localhost:8080
 
 
    
