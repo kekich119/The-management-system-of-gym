@@ -26,7 +26,7 @@ public class UserRestController {
 
     @PostMapping("/add/user")
     public User addUser(@RequestBody User user) {
-       if (validator.isValidAll(user.getName(),user.getLastName(),user.getEmail(),user.getSpecial_code())) {
+       if (validator.isValidAll(user.getName(),user.getLastName(),user.getEmail(),user.getSpecialCode())) {
            return userService.addUser(user);
        }
        else {
@@ -71,5 +71,18 @@ public class UserRestController {
             userService.addUser(user);
         }
     }
+
+    @PutMapping("/extension/by-special-code/")
+    public void extensionBySpecialCode(@RequestParam("special-code") int specialCode) {
+        User user = userService.getUserBySpecialCode(specialCode);
+        if (user != null) {
+            user.setDate_subscription_finish(user.getDate_subscription_finish().plusDays(30));
+            user.setDate_subscription_start(user.getDate_subscription_start().plusDays(30));
+            userService.addUser(user);
+            userService.checkSubscriptionNow();
+        }
+    }
+
+
 
 }

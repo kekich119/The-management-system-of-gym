@@ -60,6 +60,27 @@ public class UserService {
             if (user.isActive() && user.getDate_subscription_finish().isBefore(java.time.LocalDate.now())) {
                 user.setActive(false);
                 usersRepository.save(user);
+            }else {
+                user.setActive(true);
+                usersRepository.save(user);
+            }
+        }
+    }
+
+
+    public User getUserBySpecialCode(int specialCode){
+        return usersRepository.findBySpecialCode(specialCode);
+    }
+
+    public void checkSubscriptionNow() {
+        List<User> users = usersRepository.findAll();
+        for (User user : users) {
+            if (user.isActive() && user.getDate_subscription_finish().isBefore(java.time.LocalDate.now())) {
+                user.setActive(false);
+                usersRepository.save(user);
+            }else {
+                user.setActive(true);
+                usersRepository.save(user);
             }
         }
     }

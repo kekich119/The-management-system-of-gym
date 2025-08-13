@@ -30,7 +30,7 @@ public class User {
     @Column(name = "special_code")
     @Min(100000)
     @Max(999999)
-    private int special_code;
+    private int specialCode;
     @Column(name = "email")
     private String email;
     @Column(name = "date_subscription_start")

@@ -73,6 +73,30 @@
   <pre id="find-lastName-result"></pre>
 </div>
 
+
+
+
+<div class="section">
+  <h2>Продлить подписку по Email</h2>
+  <input id="extension-email" placeholder="Email" />
+  <button onclick="extendByEmail()">Продлить</button>
+  <div id="extension-email-result"></div>
+</div>
+
+<div class="section">
+  <h2>Продлить подписку по Special Code</h2>
+  <input id="extension-special-code" type="number" placeholder="Special Code" />
+  <button onclick="extendBySpecialCode()">Продлить</button>
+  <div id="extension-special-code-result"></div>
+</div>
+
+<div class="section">
+  <h2>Найти пользователя по Special Code</h2>
+  <input id="find-special-code" type="number" placeholder="Special Code" />
+  <button onclick="findUserBySpecialCode()">Найти</button>
+  <pre id="find-special-code-result"></pre>
+</div>
+
 <script>
   const API_BASE = 'http://localhost:8080/api';
 
@@ -231,6 +255,62 @@
       document.getElementById('find-lastName-result').textContent = JSON.stringify(user, null, 2);
     } else {
       document.getElementById('find-lastName-result').textContent = 'Пользователь не найден';
+    }
+  }
+
+
+
+  async function extendByEmail() {
+    const email = document.getElementById('extension-email').value.trim();
+    if (!email) {
+      alert('Email обязателен');
+      return;
+    }
+    const url = new URL(`${API_BASE}/extension/by-email/`);
+    url.searchParams.append('email', email);
+
+    const res = await fetch(url, { method: 'PUT' });
+    if (res.ok) {
+      document.getElementById('extension-email-result').textContent = 'Подписка продлена';
+      loadUsers();
+    } else {
+      document.getElementById('extension-email-result').textContent = 'Ошибка при продлении';
+    }
+  }
+
+  async function extendBySpecialCode() {
+    const specialCode = document.getElementById('extension-special-code').value.trim();
+    if (!specialCode) {
+      alert('Special Code обязателен');
+      return;
+    }
+    const url = new URL(`${API_BASE}/extension/by-special-code/`);
+    url.searchParams.append('special-code', specialCode);
+
+    const res = await fetch(url, { method: 'PUT' });
+    if (res.ok) {
+      document.getElementById('extension-special-code-result').textContent = 'Подписка продлена';
+      loadUsers();
+    } else {
+      document.getElementById('extension-special-code-result').textContent = 'Ошибка при продлении';
+    }
+  }
+
+  async function findUserBySpecialCode() {
+    const specialCode = document.getElementById('find-special-code').value.trim();
+    if (!specialCode) {
+      alert('Введите Special Code');
+      return;
+    }
+    const url = new URL(`${API_BASE}/get/user/by-special-code`);
+    url.searchParams.append('specialCode', specialCode);
+
+    const res = await fetch(url);
+    if (res.ok) {
+      const user = await res.json();
+      document.getElementById('find-special-code-result').textContent = JSON.stringify(user, null, 2);
+    } else {
+      document.getElementById('find-special-code-result').textContent = 'Пользователь не найден';
     }
   }
 
