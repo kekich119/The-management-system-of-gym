@@ -41,12 +41,12 @@ public class UserRestController {
         return userService.getAllUsers();
     }
 
-    @GetMapping("/get/user/by-name")
+    @GetMapping("/get/user/by-name/")
     public User getUser(@RequestParam("name") String name) {
-        return userService.getUserByName(name);
+        return userService.getCachedUsers(name);
     }
 
-    @GetMapping("/get/user/by-lastName")
+    @GetMapping("/get/user/by-lastName/")
     public ResponseEntity<User> getUserByLastName(@RequestParam("lastName") String lastName) {
         return userService.getUserByLastName(lastName).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }

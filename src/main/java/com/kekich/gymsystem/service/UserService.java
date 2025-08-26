@@ -1,10 +1,15 @@
 package com.kekich.gymsystem.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kekich.gymsystem.model.User;
 import com.kekich.gymsystem.repository.UsersRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,10 +18,13 @@ import java.util.Optional;
 public class UserService {
 
 
+    JedisPool jedisPool = new JedisPool("localhost", 6379);
     private final UsersRepository usersRepository;
+    private ObjectMapper mapper;
 
-    public UserService(UsersRepository usersRepository) {
+    public UserService(UsersRepository usersRepository, ObjectMapper mapper) {
         this.usersRepository = usersRepository;
+        this.mapper = mapper;
     }
 
 
@@ -84,5 +92,25 @@ public class UserService {
             }
         }
     }
+    public User getCachedUsers(String name) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            String key = "user:%s".formatted(name);
+            String raw = jedis.get(key);
+            if (raw != null) {
+                return mapper.readValue(raw, User.class);
+            }
+            var user = getUserByName(name);
+            if (user == null){
+                return null;
+            }
+            jedis.setex(key, 10, mapper.writeValueAsString(user));
+            return user;
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 
 }
